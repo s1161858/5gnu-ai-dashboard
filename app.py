@@ -2,6 +2,7 @@ import streamlit as st
 import requests
 from PIL import Image
 import os
+import base64  # 新增：用于处理图片嵌入
 
 # === 1. 页面基础配置 ===
 st.set_page_config(
@@ -11,7 +12,16 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# === 2. 全局 CSS (按钮修复 + 样式微调) ===
+# === 辅助函数：将图片转换为 HTML 可用的 Base64 格式 ===
+def get_base64_image(image_path):
+    try:
+        with open(image_path, "rb") as f:
+            data = f.read()
+        return base64.b64encode(data).decode()
+    except Exception:
+        return None
+
+# === 2. 全局 CSS (保持之前的完美布局) ===
 st.markdown("""
 <style>
     /* --- 1. 强制显示侧边栏开关按钮 --- */
@@ -47,15 +57,22 @@ st.markdown("""
         color: #cbd5e1 !important; /* 侧边栏文字白 */
     }
 
-    /* --- 3. 左侧 Logo 专属白底卡片 --- */
-    .sidebar-logo-container {
-        background-color: #ffffff !important;
+    /* --- 3. 侧边栏 Logo 容器 (纯白底色) --- */
+    .sidebar-logo-box {
+        background-color: #ffffff !important; /* 强制纯白 */
         padding: 15px;
         border-radius: 12px;
         text-align: center;
         margin-bottom: 20px;
         border: 2px solid #3b82f6; /* 蓝边框 */
-        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.5); /* 阴影 */
+    }
+    /* 确保图片在盒子里自适应 */
+    .sidebar-logo-box img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 0 auto;
     }
 
     /* --- 4. 仪表盘数据 (侧边栏) --- */
@@ -111,19 +128,26 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-# === 3. 侧边栏逻辑 (只保留控制和数据) ===
+# === 3. 侧边栏逻辑 ===
 with st.sidebar:
-    # [Logo] - 使用白色容器包裹
-    st.markdown('<div class="sidebar-logo-container">', unsafe_allow_html=True)
-    try:
-        if os.path.exists("Logo抠图版.png"):
-            # 图片宽度设为100%适应容器
-            st.image("Logo抠图版.png", use_container_width=True)
-        else:
-            st.markdown("<h2 style='color:#0f172a !important; margin:0;'>5Gnu</h2>", unsafe_allow_html=True)
-    except:
-        st.error("Logo Error")
-    st.markdown('</div>', unsafe_allow_html=True)
+    # [Logo] - 使用 HTML+Base64 强行嵌入白盒子
+    logo_path = "Logo抠图版.png"
+    img_b64 = get_base64_image(logo_path)
+    
+    if img_b64:
+        # 有图片：显示在白盒子里
+        st.markdown(f"""
+        <div class="sidebar-logo-box">
+            <img src="data:image/png;base64,{img_b64}" alt="5Gnu Logo">
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        # 无图片：显示文字 Logo
+        st.markdown("""
+        <div class="sidebar-logo-box">
+            <h2 style='color:#0f172a !important; margin:0;'>5Gnu</h2>
+        </div>
+        """, unsafe_allow_html=True)
 
     # [模式选择]
     st.markdown("### 💠 SYSTEM PROTOCOL")
@@ -156,16 +180,17 @@ with st.sidebar:
         </div>
         """, unsafe_allow_html=True)
     
-    st.markdown("<div style='margin-top:20px; font-size:0.8em; color:#64748b;'>System v3.1.0</div>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-top:20px; font-size:0.8em; color:#64748b;'>System v3.1.2</div>", unsafe_allow_html=True)
 
 
 # === 4. 主界面逻辑 ===
 
-# [新增] 主界面顶部 Logo (标题上方)
+# [主界面顶部 Logo]
 col_top_logo, _ = st.columns([1, 10])
 with col_top_logo:
+    # 这里直接用 st.image 没问题，因为背景是白的
     if os.path.exists("Logo抠图版.png"):
-        st.image("Logo抠图版.png", width=100) # 小尺寸Logo
+        st.image("Logo抠图版.png", width=100)
     else:
         st.markdown("🚁")
 
@@ -175,7 +200,7 @@ st.caption("AOPA Authorized | Low Altitude Economy Intelligent System")
 
 col_main, col_info = st.columns([7, 3])
 
-# --- 右侧信息面板 (包含 Danger Zone) ---
+# --- 右侧信息面板 ---
 with col_info:
     # 1. 飞行状态
     st.markdown("""
@@ -199,7 +224,7 @@ with col_info:
     </div>
     """, unsafe_allow_html=True)
 
-    # 3. [移位] Danger Zone (重置按钮)
+    # 3. Danger Zone (保持在右下角)
     st.markdown('<div class="danger-zone-card">', unsafe_allow_html=True)
     st.markdown("<h5 style='color:#991b1b; margin-top:0;'>⚠️ System Actions</h5>", unsafe_allow_html=True)
     st.markdown('<div class="reset-btn-right">', unsafe_allow_html=True)
