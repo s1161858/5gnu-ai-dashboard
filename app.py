@@ -8,88 +8,51 @@ st.set_page_config(
     page_title="5Gnu Command Center",
     page_icon="🚁",
     layout="wide",
-    initial_sidebar_state="expanded" # 确保侧边栏默认展开
+    initial_sidebar_state="expanded"
 )
 
-# === 2. 全局 CSS (强制找回按钮版) ===
+# === 2. 全局 CSS (修复按钮消失问题 & 缩进修正) ===
 st.markdown("""
 <style>
-    /* --- 1. 核心修复：把侧边栏按钮找回来！ --- */
-    
-    /* 强制显示顶部 Header 区域 (按钮住在这里) */
+    /* --- 1. 核心修复：强制显示侧边栏开关按钮 --- */
     header[data-testid="stHeader"] {
         background: transparent !important;
         visibility: visible !important;
-        z-index: 99999 !important; /* 层级最高，防止被挡住 */
+        z-index: 99999 !important;
     }
-
-    /* 专门针对那个折叠按钮 ( > ) */
+    
+    /* 针对折叠按钮 */
     button[kind="header"] {
         visibility: visible !important;
         display: block !important;
-        color: #0f172a !important; /* 强制设为深蓝色，防止在白底上看成白色 */
-        opacity: 1 !important;
+        color: #0f172a !important; /* 深色箭头 */
     }
     
-    /* 针对某些版本的 collapsedControl 选择器 */
+    /* 针对折叠控件容器 */
     [data-testid="collapsedControl"] {
         display: block !important;
         visibility: visible !important;
         color: #0f172a !important;
     }
 
-    /* 仅隐藏那个错误的 keyboard_double 图标文字，绝不隐藏箭头 */
+    /* 仅隐藏错误的文字标签，不隐藏箭头 */
     span:contains("keyboard_double_arrow_right") { 
         display: none !important; 
     }
 
     /* --- 2. 主区域恢复白色背景 --- */
     .stApp {
-        background-color: #f8fafc;
-        color: #1e293b;
+        background-color: #f8fafc; /* 浅灰白背景 */
+        color: #1e293b; /* 深色文字 */
     }
 
-    /* --- 3. 侧边栏保持深色 --- */
+    /* --- 3. 侧边栏深色科技感 --- */
     section[data-testid="stSidebar"] {
-        background-color: #0f172a;
-    }
-    /* 侧边栏文字变白 */
-    section[data-testid="stSidebar"] * {
-        color: #cbd5e1 !important;
-    }
-
-    /* --- 4. Logo 区域 --- */
-    .logo-box {
-        background-color: #ffffff;
-        border-radius: 10px;
-        padding: 12px;
-        text-align: center;
-        margin-bottom: 20px;
-        border: 2px solid #3b82f6;
-    }
-
-    /* --- 5. 重置按钮 --- */
-    .reset-box button {
-        background-color: #dc2626 !important;
-        color: white !important;
-        border: 1px solid #ef4444 !important;
-    }
-
-    /* --- 6. 隐藏不必要的 Footer，但不隐藏 Header --- */
-    footer {visibility: hidden;}
-    /* header {visibility: hidden;} <--- 这一行一定要删掉！之前可能就是它把按钮藏起来了 */
-    
-</style>
-""", unsafe_allow_html=True)
-
-
-    /* --- 3. 侧边栏保持深色科技感 --- */
-    section[data-testid="stSidebar"] {
-        background-color: #0f172a; /* 深邃夜空蓝 */
+        background-color: #0f172a; /* 深蓝黑 */
         border-right: 1px solid #1e293b;
     }
     
-    /* 侧边栏内的所有文字强制变白 */
+    /* 侧边栏内所有元素强制变白 */
     section[data-testid="stSidebar"] h1, 
     section[data-testid="stSidebar"] h2, 
     section[data-testid="stSidebar"] h3, 
@@ -100,18 +63,18 @@ st.markdown("""
         color: #cbd5e1 !important;
     }
 
-    /* --- Logo 区域优化 (白底光舱，清晰可见) --- */
+    /* --- 4. Logo 光舱 (白底) --- */
     .logo-box {
-        background-color: #ffffff; /* 纯白背景 */
+        background-color: #ffffff;
         border-radius: 10px;
         padding: 12px;
         text-align: center;
         margin-bottom: 20px;
-        border: 2px solid #3b82f6; /* 蓝色边框 */
-        box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); /* 蓝色光晕 */
+        border: 2px solid #3b82f6;
+        box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
     }
 
-    /* --- 重置按钮 (红色醒目) --- */
+    /* --- 5. 重置按钮 (红色醒目) --- */
     .reset-box button {
         background-color: #dc2626 !important;
         color: white !important;
@@ -124,7 +87,7 @@ st.markdown("""
         background-color: #b91c1c !important;
     }
 
-    /* --- 仪表盘数据框 (侧边栏内) --- */
+    /* --- 6. 仪表盘数据框 --- */
     .metric-container {
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid #334155;
@@ -136,53 +99,33 @@ st.markdown("""
         font-family: 'Courier New', monospace;
         font-size: 1.4em;
         font-weight: bold;
-        color: #38bdf8; /* 亮青色数字 */
+        color: #38bdf8;
     }
     .metric-lbl {
         font-size: 0.75em;
         color: #94a3b8;
     }
 
-    /* --- 主界面卡片 (回到清爽的白色卡片) --- */
-    .css-card {
-        background-color: #ffffff;
-        border-radius: 10px;
-        padding: 20px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        margin-bottom: 15px;
-        border: 1px solid #e2e8f0;
-    }
-
-    /* 比赛通告栏 (保留醒目设计，但适应白底) */
+    /* --- 7. 主界面通告栏 --- */
     .event-banner {
-        background-color: #fff7ed; /* 淡橙色背景 */
-        border-left: 5px solid #f97316; /* 橙色左边框 */
+        background-color: #fff7ed;
+        border-left: 5px solid #f97316;
         padding: 15px;
         border-radius: 8px;
         margin-bottom: 20px;
         border: 1px solid #ffedd5;
     }
     
-    /* 聊天气泡 */
-    .stChatMessage {
-        background-color: white;
-        border: 1px solid #e2e8f0;
-    }
-    .stChatMessage[data-testid="stChatMessageUser"] {
-        background-color: #eff6ff; /* 淡蓝 */
-    }
-    
-    /* 隐藏 Footer */
+    /* --- 8. 隐藏 Footer --- */
     footer {visibility: hidden;}
-    header {visibility: hidden;}
     
 </style>
 """, unsafe_allow_html=True)
 
 
-# === 3. 侧边栏 (Mission Control) ===
+# === 3. 侧边栏逻辑 (Mission Control) ===
 with st.sidebar:
-    # [Logo 区域] - 白底光舱，确保Logo绝对清晰
+    # [Logo 区域]
     st.markdown('<div class="logo-box">', unsafe_allow_html=True)
     try:
         if os.path.exists("Logo抠图版.png"):
@@ -239,7 +182,7 @@ with st.sidebar:
     st.link_button("🌐 Go to Website", "http://ltexpo2023.5gnumultimedia.com", use_container_width=True)
 
 
-# === 4. 主界面逻辑 (回归白色清爽风格) ===
+# === 4. 主界面逻辑 ===
 
 # 标题
 st.markdown("<h1 style='color:#1e40af;'>5Gnu LAE Command Center</h1>", unsafe_allow_html=True)
@@ -249,17 +192,18 @@ col_main, col_info = st.columns([7, 3])
 
 # --- 右侧信息面板 ---
 with col_info:
+    # 白色清爽风格卡片
     st.markdown("""
-    <div class="css-card">
-        <h4 style="color:#0ea5e9; border-bottom:1px solid #eee; padding-bottom:5px;">✈️ DRONE STATUS</h4>
-        <p><strong>ID:</strong> X-200-PRO</p>
-        <p><strong>MODE:</strong> AUTO-PILOT</p>
-        <p><strong>BATTERY:</strong> <span style="color:green">87%</span></p>
+    <div style="background:white; padding:15px; border-radius:10px; border:1px solid #e2e8f0; margin-bottom:15px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+        <h4 style="color:#0ea5e9; margin-top:0; border-bottom:1px solid #eee; padding-bottom:5px;">✈️ DRONE STATUS</h4>
+        <p style="margin:5px 0;"><strong>ID:</strong> X-200-PRO</p>
+        <p style="margin:5px 0;"><strong>MODE:</strong> AUTO-PILOT</p>
+        <p style="margin:5px 0;"><strong>BATTERY:</strong> <span style="color:green">87%</span></p>
     </div>
     
-    <div class="css-card">
-        <h4 style="color:#8b5cf6; border-bottom:1px solid #eee; padding-bottom:5px;">⌨️ QUICK COMMS</h4>
-        <ul>
+    <div style="background:white; padding:15px; border-radius:10px; border:1px solid #e2e8f0; margin-bottom:15px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
+        <h4 style="color:#8b5cf6; margin-top:0; border-bottom:1px solid #eee; padding-bottom:5px;">⌨️ QUICK COMMS</h4>
+        <ul style="padding-left:20px; margin:0;">
             <li>Bett 2026 Overview</li>
             <li>Sky & Earth Sync Detail</li>
             <li>AOPA Exam Syllabus</li>
@@ -269,7 +213,7 @@ with col_info:
 
 # --- 左侧主对话区域 ---
 with col_main:
-    # 比赛通告栏 (淡橙色背景，黑字，清晰易读)
+    # 比赛通告栏 (淡橙色背景，黑字)
     st.markdown("""
     <div class="event-banner">
         <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -323,5 +267,4 @@ with col_main:
                         placeholder.error(f"Error {response.status_code}")
                 except Exception as e:
                     placeholder.error(f"Link Down: {e}")
-
 
