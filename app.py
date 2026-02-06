@@ -11,308 +11,272 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# === 2. 全局 CSS 样式表 (修复Bug & 提升科技感) ===
+# === 2. 全局 CSS (赛博朋克/指挥中心风格) ===
 st.markdown("""
 <style>
-    /* --- 全局背景设置 --- */
+    /* --- 全局背景：深空黑蓝 --- */
     .stApp {
-        background-color: #0f172a; /* 改为深色背景，符合Command Center定位 */
+        background-color: #020617; /* Very Dark Blue/Black */
         color: #e2e8f0;
     }
-    
-    /* --- 修复 Streamlit 图标显示 Bug (隐藏 keyboard_double...) --- */
-    button[kind="header"] {
-        display: none !important;
-    }
-    div[data-testid="stSidebarNav"] {
-        padding-top: 0px; 
-    }
-    /* 强制隐藏可能出现的异常文字 */
-    span:contains("keyboard_double_arrow_right") {
-        display: none !important;
-        opacity: 0;
-    }
-    
-    /* --- 侧边栏美化 (科技深蓝风格) --- */
+
+    /* --- 修复 Streamlit 图标 Bug (隐藏 keyboard_double...) --- */
+    button[kind="header"] { display: none !important; }
+    span:contains("keyboard_double_arrow_right") { display: none !important; opacity: 0; }
+    div[data-testid="stSidebarNav"] { padding-top: 0px; }
+
+    /* --- 侧边栏样式 --- */
     [data-testid="stSidebar"] {
-        background-color: #020617; /* 更黑的背景 */
+        background-color: #0f172a; /* Slate 900 */
         border-right: 1px solid #1e293b;
     }
-    
-    /* 侧边栏文字颜色 */
     [data-testid="stSidebar"] * {
-        color: #cbd5e1 !important;
+        color: #cbd5e1 !important; /* 浅灰文字 */
     }
 
-    /* Logo 区域容器 */
-    .logo-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 20px 0;
-        background: radial-gradient(circle at center, #1e293b 0%, transparent 70%);
-        margin-bottom: 20px;
-        border-bottom: 1px solid #1e293b;
+    /* --- Logo 专属光舱 (解决看不清问题) --- */
+    .logo-box {
+        background-color: rgba(255, 255, 255, 0.95); /* 亮白背景 */
+        border-radius: 12px;
+        padding: 15px;
+        text-align: center;
+        margin-bottom: 25px;
+        box-shadow: 0 0 20px rgba(56, 189, 248, 0.3); /* 青色辉光 */
+        border: 2px solid #38bdf8;
     }
-    
-    /* 侧边栏按钮 - 危险操作 (Reset) */
-    .reset-btn button {
-        background-color: #7f1d1d !important;
-        color: #fca5a5 !important;
-        border: 1px solid #991b1b !important;
-        font-weight: bold;
+
+    /* --- 重置按钮 (核按钮风格) --- */
+    .reset-box button {
+        background: repeating-linear-gradient(
+            45deg,
+            #7f1d1d,
+            #7f1d1d 10px,
+            #991b1b 10px,
+            #991b1b 20px
+        ) !important;
+        color: #ffffff !important;
+        border: 2px solid #ef4444 !important;
+        font-weight: 900 !important;
+        letter-spacing: 1px;
+        text-transform: uppercase;
         width: 100%;
-        transition: all 0.3s;
+        padding: 15px 0 !important;
+        transition: transform 0.2s;
+        box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
     }
-    .reset-btn button:hover {
-        background-color: #b91c1c !important;
-        box-shadow: 0 0 10px #ef4444;
+    .reset-box button:hover {
+        transform: scale(1.02);
+        box-shadow: 0 0 25px rgba(220, 38, 38, 0.8);
     }
 
-    /* --- 侧边栏仪表盘数据框 --- */
-    .metric-box {
+    /* --- 仪表盘数据框 --- */
+    .metric-container {
         background: rgba(15, 23, 42, 0.6);
-        padding: 12px;
-        border-radius: 6px;
-        margin-bottom: 10px;
         border: 1px solid #334155;
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 10px;
         position: relative;
         overflow: hidden;
     }
-    /* 增加一个扫描线动画效果 */
-    .metric-box::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.1), transparent);
-        animation: scan 3s infinite;
-    }
-    @keyframes scan {
-        0% { left: -100%; }
-        100% { left: 200%; }
-    }
-
-    .metric-value {
-        font-size: 1.4em;
-        font-weight: bold;
-        color: #38bdf8; /* 天蓝色 */
+    .metric-val {
         font-family: 'Courier New', monospace;
+        font-size: 1.5em;
+        font-weight: bold;
+        color: #38bdf8; /* Neon Cyan */
+        text-shadow: 0 0 5px rgba(56, 189, 248, 0.6);
     }
-    .metric-label {
-        font-size: 0.75em;
-        text-transform: uppercase;
-        letter-spacing: 1px;
+    .metric-lbl {
+        font-size: 0.7em;
         color: #94a3b8;
+        letter-spacing: 1px;
+        text-transform: uppercase;
     }
 
-    /* --- 主区域样式重构 --- */
-    
-    /* 主标题样式 */
+    /* --- 主区域样式 --- */
     .main-header {
-        background: linear-gradient(90deg, #1e40af 0%, #3b82f6 100%);
+        font-family: 'Segoe UI', sans-serif;
+        font-weight: 800;
+        background: linear-gradient(90deg, #60a5fa, #a78bfa);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        font-weight: 900;
-        letter-spacing: -1px;
-        text-shadow: 0 2px 10px rgba(59, 130, 246, 0.3);
-    }
-
-    /* 通用卡片 (改为深色磨砂玻璃感) */
-    .css-card {
-        background-color: #1e293b; /* 深蓝灰色 */
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-        margin-bottom: 15px;
-        border: 1px solid #334155;
-        color: #e2e8f0;
-    }
-
-    /* 右侧信息面板 - 赛博朋克边框 */
-    .cyber-card {
-        background-color: rgba(30, 41, 59, 0.8);
-        border: 1px solid #0ea5e9;
-        box-shadow: 0 0 10px rgba(14, 165, 233, 0.2);
-        border-radius: 8px;
-        padding: 15px;
-        margin-bottom: 15px;
-    }
-    .cyber-title {
-        color: #0ea5e9;
-        font-family: 'Courier New', monospace;
-        font-weight: bold;
-        border-bottom: 1px solid #0f172a;
-        padding-bottom: 5px;
-        margin-bottom: 10px;
-        font-size: 0.9em;
-    }
-    .cyber-data-row {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 5px;
-        font-family: 'Courier New', monospace;
-        font-size: 0.85em;
-    }
-    .cyber-value { color: #fff; }
-
-    /* 聊天气泡优化 (深色模式) */
-    .stChatMessage {
-        background-color: #1e293b;
-        border: 1px solid #334155;
-    }
-    .stChatMessage[data-testid="stChatMessageUser"] {
-        background-color: #334155;
+        letter-spacing: -0.5px;
+        margin-bottom: 0px;
     }
     
-    /* 隐藏 footer */
+    /* 右侧信息面板 - 赛博边框 */
+    .cyber-panel {
+        background: rgba(30, 41, 59, 0.4);
+        border: 1px solid #0ea5e9; /* Cyan Border */
+        border-radius: 6px;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 0 10px rgba(14, 165, 233, 0.1);
+        backdrop-filter: blur(5px);
+    }
+    
+    /* 比赛通告栏 - 霓虹橙警示 */
+    .event-banner {
+        background: linear-gradient(90deg, rgba(67, 20, 7, 0.6) 0%, rgba(30, 41, 59, 0) 100%);
+        border-left: 4px solid #f97316; /* Neon Orange */
+        padding: 20px;
+        border-radius: 8px;
+        border: 1px solid rgba(249, 115, 22, 0.3);
+        margin-bottom: 20px;
+    }
+
+    /* 输入框样式微调 */
+    .stTextInput input {
+        background-color: #1e293b !important;
+        color: white !important;
+        border: 1px solid #475569 !important;
+    }
+    
+    /* 隐藏 Footer */
     footer {visibility: hidden;}
-    #MainMenu {visibility: hidden;}
     header {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
 
 
-# === 3. 侧边栏 (Mission Control Center) ===
+# === 3. 侧边栏 (Mission Control) ===
 with st.sidebar:
-    # --- LOGO 区域 (优化版) ---
-    # 使用一个专门的容器来居中和衬托 Logo，解决看不清的问题
-    st.markdown('<div class="logo-container">', unsafe_allow_html=True)
+    # [Logo 区域] - 白色光舱
+    st.markdown('<div class="logo-box">', unsafe_allow_html=True)
     try:
         if os.path.exists("Logo抠图版.png"):
-            # 使用 container width 撑满容器
-            st.image("Logo抠图版.png", width=180) 
+            # 略微调小宽度以适应边距
+            st.image("Logo抠图版.png", width=160)
         else:
-            # 备用文字 Logo
-            st.markdown("<h1 style='text-align:center; color:#38bdf8;'>5Gnu</h1>", unsafe_allow_html=True)
+            st.markdown("<h2 style='color:#0f172a; margin:0;'>5Gnu</h2>", unsafe_allow_html=True)
     except:
-        st.markdown("Logo File Missing")
+        st.error("Logo Error")
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # --- 模块 1: 系统模式 ---
-    st.markdown("### 🎛️ SYSTEM MODE")
-    app_mode = st.radio(
-        "Mode Selection",
-        ["🏆 Bett 2026 Strategy", "🎓 AOPA Exam Prep", "🚁 Drone Tech Support"],
+    # [模式选择]
+    st.markdown("### 💠 SYSTEM PROTOCOL")
+    mode = st.radio(
+        "Protocol",
+        ["🏆 Bett 2026 Strategy", "🎓 AOPA Exam Prep", "🔧 Drone Tech Support"],
         label_visibility="collapsed"
     )
     
-    if app_mode == "🏆 Bett 2026 Strategy":
+    # 动态提示条
+    if "Bett" in mode:
         st.markdown("""
-        <div style="background:#172554; padding:10px; border-radius:4px; border-left:3px solid #facc15;">
-            <small>TARGET: Sky & Earth Tournament</small>
+        <div style="margin-top:5px; padding:8px; background:rgba(234, 179, 8, 0.1); border:1px solid #eab308; border-radius:4px; color:#facc15;">
+            <small>⚡ <strong>ACTIVE MISSION:</strong> Sky & Earth Tournament Setup</small>
         </div>
         """, unsafe_allow_html=True)
     
     st.markdown("---")
 
-    # --- 模块 2: 实时遥测 (Telemetry) ---
-    st.markdown("### 📡 TELEMETRY DATA")
-    
+    # [实时遥测]
+    st.markdown("### 📡 LIVE TELEMETRY")
     c1, c2 = st.columns(2)
     with c1:
         st.markdown("""
-        <div class="metric-box">
-            <div class="metric-label">5G LINK</div>
-            <div class="metric-value">98%</div>
+        <div class="metric-container">
+            <div class="metric-lbl">5G SIGNAL</div>
+            <div class="metric-val">📶 -38dB</div>
         </div>
         """, unsafe_allow_html=True)
     with c2:
         st.markdown("""
-        <div class="metric-box">
-            <div class="metric-label">LATENCY</div>
-            <div class="metric-value">12ms</div>
+        <div class="metric-container">
+            <div class="metric-lbl">LATENCY</div>
+            <div class="metric-val">⚡ 9ms</div>
         </div>
         """, unsafe_allow_html=True)
-        
-    st.markdown("""
-    <div class="metric-box">
-        <div class="metric-label">AGENT STATUS</div>
-        <div style="color:#4ade80; font-weight:bold;">● ONLINE / LISTENING</div>
-    </div>
-    """, unsafe_allow_html=True)
 
     st.markdown("---")
-    
-    # --- 模块 3: 重置按钮 (高亮显眼) ---
+
+    # [核按钮 - 重置]
     st.markdown("### ⚠️ DANGER ZONE")
-    # 使用 container 来应用 CSS 类
+    # 使用 container 包裹以应用 CSS
     with st.container():
-        st.markdown('<div class="reset-btn">', unsafe_allow_html=True)
-        if st.button("☢️ RESET SYSTEM / 清空记录"):
+        st.markdown('<div class="reset-box">', unsafe_allow_html=True)
+        if st.button("☢️ RESET SYSTEM / 重置系统"):
             st.session_state.clear()
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
     
     st.markdown("<br>", unsafe_allow_html=True)
-    st.link_button("🌐 Access Web Portal", "http://ltexpo2023.5gnumultimedia.com", use_container_width=True)
+    st.caption("v3.0.1 | 5Gnu Low Altitude Economy Center")
 
 
 # === 4. 主界面逻辑 ===
 
-# 标题区 (改名)
+# 标题 (改名)
 st.markdown("<h1 class='main-header'>5Gnu LAE Command Center</h1>", unsafe_allow_html=True)
-st.markdown("<p style='color:#94a3b8; margin-top:-15px;'>AOPA Authorized Low Altitude Economy Control System</p>", unsafe_allow_html=True)
+st.caption("AOPA Authorized | Low Altitude Economy Intelligent System")
 
-# 定义两栏布局
 col_main, col_info = st.columns([7, 3])
 
-# --- 右侧信息面板 (科技感升级) ---
+# --- 右侧信息面板 (Cyber Style) ---
 with col_info:
-    # 面板 1: 飞行参数
+    # 面板 1
     st.markdown("""
-    <div class="cyber-card">
-        <div class="cyber-title">✈️ FLIGHT PARAMETERS</div>
-        <div class="cyber-data-row"><span>UNIT ID:</span> <span class="cyber-value">X-200-PRO</span></div>
-        <div class="cyber-data-row"><span>MODE:</span> <span class="cyber-value">AUTO-PILOT</span></div>
-        <div class="cyber-data-row"><span>BATTERY:</span> <span class="cyber-value" style="color:#4ade80">87%</span></div>
-        <div class="cyber-data-row"><span>ALTITUDE:</span> <span class="cyber-value">0.0m (GND)</span></div>
+    <div class="cyber-panel">
+        <h4 style="color:#0ea5e9; margin-top:0; border-bottom:1px solid #1e293b; padding-bottom:5px;">✈️ DRONE STATUS</h4>
+        <div style="font-family:'Courier New'; font-size:0.9em; line-height:1.6;">
+            <div>ID: <span style="color:#fff;">X-200-PRO</span></div>
+            <div>MODE: <span style="color:#4ade80;">AUTO-PILOT</span></div>
+            <div>BATTERY: <span style="color:#facc15;">87%</span></div>
+        </div>
     </div>
     """, unsafe_allow_html=True)
     
-    # 面板 2: 快捷指令
+    # 面板 2 (快捷指令)
     st.markdown("""
-    <div class="cyber-card">
-        <div class="cyber-title">⌨️ QUICK COMMANDS</div>
-        <ul style="padding-left:15px; margin:0; color:#cbd5e1; font-size:0.85em;">
-            <li style="margin-bottom:5px;">Mission: Bett 2026 Overview</li>
-            <li style="margin-bottom:5px;">Tech: Sky & Earth Sync</li>
-            <li style="margin-bottom:5px;">Edu: AOPA License Path</li>
+    <div class="cyber-panel">
+        <h4 style="color:#a78bfa; margin-top:0; border-bottom:1px solid #1e293b; padding-bottom:5px;">⌨️ QUICK COMMS</h4>
+        <ul style="padding-left:15px; margin:0; font-size:0.85em; color:#cbd5e1;">
+            <li>Bett 2026 Overview</li>
+            <li>Sky & Earth Sync Detail</li>
+            <li>AOPA Exam Syllabus</li>
         </ul>
     </div>
     """, unsafe_allow_html=True)
 
 # --- 左侧主对话区域 ---
 with col_main:
-    # 比赛通告栏 (保持设计，但微调颜色适应深色模式)
+    # 比赛通告栏 (Neon Orange Theme)
     st.markdown("""
-    <div class="css-card" style="border-left: 4px solid #f59e0b; background: linear-gradient(90deg, #1e293b 0%, #172554 100%);">
-        <div style="display: flex; align-items: center; justify-content: space-between;">
-            <h3 style="color: #fbbf24; margin: 0; font-size: 1.1em;">🏆 ALERT: Bett 2026 & Sky/Earth Soccer</h3>
-            <span style="background:#451a03; color:#fbbf24; padding:2px 8px; border-radius:4px; font-size:0.7em; border:1px solid #b45309;">FEATURED</span>
+    <div class="event-banner">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3 style="color:#f97316; margin:0; font-size:1.2rem;">🏆 ALERT: Bett 2026 & Sky/Earth Soccer</h3>
+            <span style="background:#f97316; color:black; padding:2px 8px; border-radius:4px; font-weight:bold; font-size:0.7rem;">PRIORITY</span>
         </div>
-        <p style="margin-top: 10px; color: #cbd5e1; font-size: 0.9em;">
-            Deploying <strong>5G Remote Control</strong> tech: UK Star controlling HK Robots.
+        <p style="color:#fdba74; margin-top:10px; margin-bottom:5px;">
+            <strong>Mission Objective:</strong> Demonstrate 5G Remote Control capabilities.
         </p>
+        <div style="font-size:0.9em; color:#e2e8f0;">
+            <span style="color:#f97316;">★ WOW FACTOR:</span> UK Star controlling HK Robots remotely via 5G.
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
-    # 聊天记录区
+    # 聊天记录
     if "messages" not in st.session_state:
         st.session_state.messages = [
-            {"role": "assistant", "content": "Command Center Online. Awaiting instructions regarding Bett 2026 or Flight Missions."}
+            {"role": "assistant", "content": "Command Center Online. Ready for mission instructions."}
         ]
 
     chat_container = st.container()
     
     # 输入框
-    prompt = st.chat_input("Enter command or query...")
+    prompt = st.chat_input("Enter command code or query...")
 
     with chat_container:
         for msg in st.session_state.messages:
-            st.chat_message(msg["role"]).write(msg["content"])
+            # 区分用户和AI的样式
+            if msg["role"] == "user":
+                with st.chat_message("user"):
+                    st.write(msg["content"])
+            else:
+                with st.chat_message("assistant"):
+                    st.write(msg["content"])
 
     if prompt:
         st.session_state.messages.append({"role": "user", "content": prompt})
@@ -324,19 +288,17 @@ with col_main:
         
         with chat_container:
             with st.chat_message("assistant"):
-                message_placeholder = st.empty()
-                # 模拟打字机效果或加载状态
-                message_placeholder.markdown("`PROCESSING DATA STREAM...`")
+                placeholder = st.empty()
+                placeholder.markdown("`TRANSMITTING DATA...`")
                 
                 try:
                     response = requests.post(API_URL, json={"question": prompt})
                     if response.status_code == 200:
-                        ai_reply = response.json().get("text", "Error: Empty Response")
+                        text = response.json().get("text", "")
+                        placeholder.write(text)
+                        st.session_state.messages.append({"role": "assistant", "content": text})
                     else:
-                        ai_reply = f"System Error: {response.status_code}"
+                        placeholder.error(f"Error {response.status_code}")
                 except Exception as e:
-                    ai_reply = f"Link Failure: {e}"
-                
-                message_placeholder.write(ai_reply)
-                st.session_state.messages.append({"role": "assistant", "content": ai_reply})
+                    placeholder.error(f"Link Down: {e}")
 
