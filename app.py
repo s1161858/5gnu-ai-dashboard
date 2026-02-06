@@ -11,83 +11,54 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# === 2. 全局 CSS (修复按钮消失问题 & 缩进修正) ===
+# === 2. 全局 CSS (按钮修复 + 样式微调) ===
 st.markdown("""
 <style>
-    /* --- 1. 核心修复：强制显示侧边栏开关按钮 --- */
+    /* --- 1. 强制显示侧边栏开关按钮 --- */
     header[data-testid="stHeader"] {
         background: transparent !important;
         visibility: visible !important;
         z-index: 99999 !important;
     }
-    
-    /* 针对折叠按钮 */
     button[kind="header"] {
         visibility: visible !important;
         display: block !important;
-        color: #0f172a !important; /* 深色箭头 */
+        color: #0f172a !important;
     }
-    
-    /* 针对折叠控件容器 */
     [data-testid="collapsedControl"] {
         display: block !important;
         visibility: visible !important;
         color: #0f172a !important;
     }
-
-    /* 仅隐藏错误的文字标签，不隐藏箭头 */
     span:contains("keyboard_double_arrow_right") { 
         display: none !important; 
     }
 
-    /* --- 2. 主区域恢复白色背景 --- */
+    /* --- 2. 布局颜色 --- */
     .stApp {
-        background-color: #f8fafc; /* 浅灰白背景 */
-        color: #1e293b; /* 深色文字 */
+        background-color: #f8fafc; /* 主区域白 */
+        color: #1e293b;
     }
-
-    /* --- 3. 侧边栏深色科技感 --- */
     section[data-testid="stSidebar"] {
-        background-color: #0f172a; /* 深蓝黑 */
+        background-color: #0f172a; /* 侧边栏深蓝 */
         border-right: 1px solid #1e293b;
     }
-    
-    /* 侧边栏内所有元素强制变白 */
-    section[data-testid="stSidebar"] h1, 
-    section[data-testid="stSidebar"] h2, 
-    section[data-testid="stSidebar"] h3, 
-    section[data-testid="stSidebar"] label, 
-    section[data-testid="stSidebar"] span, 
-    section[data-testid="stSidebar"] p, 
-    section[data-testid="stSidebar"] div {
-        color: #cbd5e1 !important;
+    section[data-testid="stSidebar"] * {
+        color: #cbd5e1 !important; /* 侧边栏文字白 */
     }
 
-    /* --- 4. Logo 光舱 (白底) --- */
-    .logo-box {
-        background-color: #ffffff;
-        border-radius: 10px;
-        padding: 12px;
+    /* --- 3. 左侧 Logo 专属白底卡片 --- */
+    .sidebar-logo-container {
+        background-color: #ffffff !important;
+        padding: 15px;
+        border-radius: 12px;
         text-align: center;
         margin-bottom: 20px;
-        border: 2px solid #3b82f6;
-        box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+        border: 2px solid #3b82f6; /* 蓝边框 */
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
     }
 
-    /* --- 5. 重置按钮 (红色醒目) --- */
-    .reset-box button {
-        background-color: #dc2626 !important;
-        color: white !important;
-        border: 1px solid #ef4444 !important;
-        font-weight: bold !important;
-        width: 100%;
-        transition: 0.3s;
-    }
-    .reset-box button:hover {
-        background-color: #b91c1c !important;
-    }
-
-    /* --- 6. 仪表盘数据框 --- */
+    /* --- 4. 仪表盘数据 (侧边栏) --- */
     .metric-container {
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid #334155;
@@ -106,7 +77,26 @@ st.markdown("""
         color: #94a3b8;
     }
 
-    /* --- 7. 主界面通告栏 --- */
+    /* --- 5. 右侧Danger Zone样式 --- */
+    .danger-zone-card {
+        background-color: #fef2f2;
+        border: 1px solid #fee2e2;
+        border-radius: 10px;
+        padding: 15px;
+        margin-top: 20px;
+    }
+    .reset-btn-right button {
+        background-color: #dc2626 !important;
+        color: white !important;
+        width: 100%;
+        border: none !important;
+        font-weight: bold;
+    }
+    .reset-btn-right button:hover {
+        background-color: #b91c1c !important;
+    }
+
+    /* --- 6. 通告栏 --- */
     .event-banner {
         background-color: #fff7ed;
         border-left: 5px solid #f97316;
@@ -116,22 +106,21 @@ st.markdown("""
         border: 1px solid #ffedd5;
     }
     
-    /* --- 8. 隐藏 Footer --- */
     footer {visibility: hidden;}
-    
 </style>
 """, unsafe_allow_html=True)
 
 
-# === 3. 侧边栏逻辑 (Mission Control) ===
+# === 3. 侧边栏逻辑 (只保留控制和数据) ===
 with st.sidebar:
-    # [Logo 区域]
-    st.markdown('<div class="logo-box">', unsafe_allow_html=True)
+    # [Logo] - 使用白色容器包裹
+    st.markdown('<div class="sidebar-logo-container">', unsafe_allow_html=True)
     try:
         if os.path.exists("Logo抠图版.png"):
-            st.image("Logo抠图版.png", width=150)
+            # 图片宽度设为100%适应容器
+            st.image("Logo抠图版.png", use_container_width=True)
         else:
-            st.markdown("<h2 style='color:#0f172a; margin:0;'>5Gnu</h2>", unsafe_allow_html=True)
+            st.markdown("<h2 style='color:#0f172a !important; margin:0;'>5Gnu</h2>", unsafe_allow_html=True)
     except:
         st.error("Logo Error")
     st.markdown('</div>', unsafe_allow_html=True)
@@ -166,33 +155,29 @@ with st.sidebar:
             <div class="metric-val">⚡ 9ms</div>
         </div>
         """, unsafe_allow_html=True)
-
-    st.markdown("---")
-
-    # [重置按钮]
-    st.markdown("### ⚠️ DANGER ZONE")
-    with st.container():
-        st.markdown('<div class="reset-box">', unsafe_allow_html=True)
-        if st.button("☢️ RESET SYSTEM / 重置系统"):
-            st.session_state.clear()
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
     
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.link_button("🌐 Go to Website", "http://ltexpo2023.5gnumultimedia.com", use_container_width=True)
+    st.markdown("<div style='margin-top:20px; font-size:0.8em; color:#64748b;'>System v3.1.0</div>", unsafe_allow_html=True)
 
 
 # === 4. 主界面逻辑 ===
 
+# [新增] 主界面顶部 Logo (标题上方)
+col_top_logo, _ = st.columns([1, 10])
+with col_top_logo:
+    if os.path.exists("Logo抠图版.png"):
+        st.image("Logo抠图版.png", width=100) # 小尺寸Logo
+    else:
+        st.markdown("🚁")
+
 # 标题
-st.markdown("<h1 style='color:#1e40af;'>5Gnu LAE Command Center</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='color:#1e40af; margin-top:-10px;'>5Gnu LAE Command Center</h1>", unsafe_allow_html=True)
 st.caption("AOPA Authorized | Low Altitude Economy Intelligent System")
 
 col_main, col_info = st.columns([7, 3])
 
-# --- 右侧信息面板 ---
+# --- 右侧信息面板 (包含 Danger Zone) ---
 with col_info:
-    # 白色清爽风格卡片
+    # 1. 飞行状态
     st.markdown("""
     <div style="background:white; padding:15px; border-radius:10px; border:1px solid #e2e8f0; margin-bottom:15px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
         <h4 style="color:#0ea5e9; margin-top:0; border-bottom:1px solid #eee; padding-bottom:5px;">✈️ DRONE STATUS</h4>
@@ -200,7 +185,10 @@ with col_info:
         <p style="margin:5px 0;"><strong>MODE:</strong> AUTO-PILOT</p>
         <p style="margin:5px 0;"><strong>BATTERY:</strong> <span style="color:green">87%</span></p>
     </div>
+    """, unsafe_allow_html=True)
     
+    # 2. 快捷指令
+    st.markdown("""
     <div style="background:white; padding:15px; border-radius:10px; border:1px solid #e2e8f0; margin-bottom:15px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
         <h4 style="color:#8b5cf6; margin-top:0; border-bottom:1px solid #eee; padding-bottom:5px;">⌨️ QUICK COMMS</h4>
         <ul style="padding-left:20px; margin:0;">
@@ -211,9 +199,20 @@ with col_info:
     </div>
     """, unsafe_allow_html=True)
 
+    # 3. [移位] Danger Zone (重置按钮)
+    st.markdown('<div class="danger-zone-card">', unsafe_allow_html=True)
+    st.markdown("<h5 style='color:#991b1b; margin-top:0;'>⚠️ System Actions</h5>", unsafe_allow_html=True)
+    st.markdown('<div class="reset-btn-right">', unsafe_allow_html=True)
+    if st.button("☢️ RESET SYSTEM / 清空记录"):
+        st.session_state.clear()
+        st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+
 # --- 左侧主对话区域 ---
 with col_main:
-    # 比赛通告栏 (淡橙色背景，黑字)
+    # 比赛通告栏
     st.markdown("""
     <div class="event-banner">
         <div style="display:flex; justify-content:space-between; align-items:center;">
