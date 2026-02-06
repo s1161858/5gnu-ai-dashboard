@@ -8,145 +8,138 @@ st.set_page_config(
     page_title="5Gnu Command Center",
     page_icon="🚁",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded" # 确保侧边栏默认展开
 )
 
-# === 2. 全局 CSS (赛博朋克/指挥中心风格) ===
+# === 2. 全局 CSS (侧边栏深色 + 主界面白色清晰版) ===
 st.markdown("""
 <style>
-    /* --- 全局背景：深空黑蓝 --- */
+    /* --- 1. 主区域恢复白色背景，保证清晰度 --- */
     .stApp {
-        background-color: #020617; /* Very Dark Blue/Black */
-        color: #e2e8f0;
+        background-color: #f8fafc; /* 极淡的灰白色，清晰护眼 */
+        color: #1e293b; /* 深色文字，对比度高 */
     }
 
-    /* --- 修复 Streamlit 图标 Bug (隐藏 keyboard_double...) --- */
-    button[kind="header"] { display: none !important; }
-    span:contains("keyboard_double_arrow_right") { display: none !important; opacity: 0; }
-    div[data-testid="stSidebarNav"] { padding-top: 0px; }
+    /* --- 2. 修复：恢复侧边栏开关按钮 (左上角箭头) --- */
+    button[kind="header"] {
+        display: block !important; /* 强制显示 */
+        color: #0f172a !important; /* 按钮颜色设为深色以便在白底可见 */
+    }
+    div[data-testid="collapsedControl"] {
+        display: block !important;
+        color: #0f172a !important;
+    }
+    
+    /* 仅隐藏那个错误的 keyboard_double 图标文字，保留箭头图形 */
+    span:contains("keyboard_double_arrow_right") { 
+        display: none !important; 
+        opacity: 0; 
+    }
 
-    /* --- 侧边栏样式 --- */
-    [data-testid="stSidebar"] {
-        background-color: #0f172a; /* Slate 900 */
+    /* --- 3. 侧边栏保持深色科技感 --- */
+    section[data-testid="stSidebar"] {
+        background-color: #0f172a; /* 深邃夜空蓝 */
         border-right: 1px solid #1e293b;
     }
-    [data-testid="stSidebar"] * {
-        color: #cbd5e1 !important; /* 浅灰文字 */
+    
+    /* 侧边栏内的所有文字强制变白 */
+    section[data-testid="stSidebar"] h1, 
+    section[data-testid="stSidebar"] h2, 
+    section[data-testid="stSidebar"] h3, 
+    section[data-testid="stSidebar"] label, 
+    section[data-testid="stSidebar"] span, 
+    section[data-testid="stSidebar"] p, 
+    section[data-testid="stSidebar"] div {
+        color: #cbd5e1 !important;
     }
 
-    /* --- Logo 专属光舱 (解决看不清问题) --- */
+    /* --- Logo 区域优化 (白底光舱，清晰可见) --- */
     .logo-box {
-        background-color: rgba(255, 255, 255, 0.95); /* 亮白背景 */
-        border-radius: 12px;
-        padding: 15px;
+        background-color: #ffffff; /* 纯白背景 */
+        border-radius: 10px;
+        padding: 12px;
         text-align: center;
-        margin-bottom: 25px;
-        box-shadow: 0 0 20px rgba(56, 189, 248, 0.3); /* 青色辉光 */
-        border: 2px solid #38bdf8;
+        margin-bottom: 20px;
+        border: 2px solid #3b82f6; /* 蓝色边框 */
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); /* 蓝色光晕 */
     }
 
-    /* --- 重置按钮 (核按钮风格) --- */
+    /* --- 重置按钮 (红色醒目) --- */
     .reset-box button {
-        background: repeating-linear-gradient(
-            45deg,
-            #7f1d1d,
-            #7f1d1d 10px,
-            #991b1b 10px,
-            #991b1b 20px
-        ) !important;
-        color: #ffffff !important;
-        border: 2px solid #ef4444 !important;
-        font-weight: 900 !important;
-        letter-spacing: 1px;
-        text-transform: uppercase;
+        background-color: #dc2626 !important;
+        color: white !important;
+        border: 1px solid #ef4444 !important;
+        font-weight: bold !important;
         width: 100%;
-        padding: 15px 0 !important;
-        transition: transform 0.2s;
-        box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
+        transition: 0.3s;
     }
     .reset-box button:hover {
-        transform: scale(1.02);
-        box-shadow: 0 0 25px rgba(220, 38, 38, 0.8);
+        background-color: #b91c1c !important;
     }
 
-    /* --- 仪表盘数据框 --- */
+    /* --- 仪表盘数据框 (侧边栏内) --- */
     .metric-container {
-        background: rgba(15, 23, 42, 0.6);
+        background: rgba(255, 255, 255, 0.05);
         border: 1px solid #334155;
-        border-radius: 8px;
+        border-radius: 6px;
         padding: 10px;
-        margin-bottom: 10px;
-        position: relative;
-        overflow: hidden;
+        margin-bottom: 8px;
     }
     .metric-val {
         font-family: 'Courier New', monospace;
-        font-size: 1.5em;
+        font-size: 1.4em;
         font-weight: bold;
-        color: #38bdf8; /* Neon Cyan */
-        text-shadow: 0 0 5px rgba(56, 189, 248, 0.6);
+        color: #38bdf8; /* 亮青色数字 */
     }
     .metric-lbl {
-        font-size: 0.7em;
+        font-size: 0.75em;
         color: #94a3b8;
-        letter-spacing: 1px;
-        text-transform: uppercase;
     }
 
-    /* --- 主区域样式 --- */
-    .main-header {
-        font-family: 'Segoe UI', sans-serif;
-        font-weight: 800;
-        background: linear-gradient(90deg, #60a5fa, #a78bfa);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        letter-spacing: -0.5px;
-        margin-bottom: 0px;
-    }
-    
-    /* 右侧信息面板 - 赛博边框 */
-    .cyber-panel {
-        background: rgba(30, 41, 59, 0.4);
-        border: 1px solid #0ea5e9; /* Cyan Border */
-        border-radius: 6px;
-        padding: 15px;
-        margin-bottom: 15px;
-        box-shadow: 0 0 10px rgba(14, 165, 233, 0.1);
-        backdrop-filter: blur(5px);
-    }
-    
-    /* 比赛通告栏 - 霓虹橙警示 */
-    .event-banner {
-        background: linear-gradient(90deg, rgba(67, 20, 7, 0.6) 0%, rgba(30, 41, 59, 0) 100%);
-        border-left: 4px solid #f97316; /* Neon Orange */
+    /* --- 主界面卡片 (回到清爽的白色卡片) --- */
+    .css-card {
+        background-color: #ffffff;
+        border-radius: 10px;
         padding: 20px;
-        border-radius: 8px;
-        border: 1px solid rgba(249, 115, 22, 0.3);
-        margin-bottom: 20px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        margin-bottom: 15px;
+        border: 1px solid #e2e8f0;
     }
 
-    /* 输入框样式微调 */
-    .stTextInput input {
-        background-color: #1e293b !important;
-        color: white !important;
-        border: 1px solid #475569 !important;
+    /* 比赛通告栏 (保留醒目设计，但适应白底) */
+    .event-banner {
+        background-color: #fff7ed; /* 淡橙色背景 */
+        border-left: 5px solid #f97316; /* 橙色左边框 */
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border: 1px solid #ffedd5;
+    }
+    
+    /* 聊天气泡 */
+    .stChatMessage {
+        background-color: white;
+        border: 1px solid #e2e8f0;
+    }
+    .stChatMessage[data-testid="stChatMessageUser"] {
+        background-color: #eff6ff; /* 淡蓝 */
     }
     
     /* 隐藏 Footer */
     footer {visibility: hidden;}
     header {visibility: hidden;}
+    
 </style>
 """, unsafe_allow_html=True)
 
 
 # === 3. 侧边栏 (Mission Control) ===
 with st.sidebar:
-    # [Logo 区域] - 白色光舱
+    # [Logo 区域] - 白底光舱，确保Logo绝对清晰
     st.markdown('<div class="logo-box">', unsafe_allow_html=True)
     try:
         if os.path.exists("Logo抠图版.png"):
-            # 略微调小宽度以适应边距
-            st.image("Logo抠图版.png", width=160)
+            st.image("Logo抠图版.png", width=150)
         else:
             st.markdown("<h2 style='color:#0f172a; margin:0;'>5Gnu</h2>", unsafe_allow_html=True)
     except:
@@ -161,13 +154,8 @@ with st.sidebar:
         label_visibility="collapsed"
     )
     
-    # 动态提示条
     if "Bett" in mode:
-        st.markdown("""
-        <div style="margin-top:5px; padding:8px; background:rgba(234, 179, 8, 0.1); border:1px solid #eab308; border-radius:4px; color:#facc15;">
-            <small>⚡ <strong>ACTIVE MISSION:</strong> Sky & Earth Tournament Setup</small>
-        </div>
-        """, unsafe_allow_html=True)
+        st.info("⚡ ACTIVE: Sky & Earth Tournament Setup")
     
     st.markdown("---")
 
@@ -191,9 +179,8 @@ with st.sidebar:
 
     st.markdown("---")
 
-    # [核按钮 - 重置]
+    # [重置按钮]
     st.markdown("### ⚠️ DANGER ZONE")
-    # 使用 container 包裹以应用 CSS
     with st.container():
         st.markdown('<div class="reset-box">', unsafe_allow_html=True)
         if st.button("☢️ RESET SYSTEM / 重置系统"):
@@ -202,36 +189,30 @@ with st.sidebar:
         st.markdown('</div>', unsafe_allow_html=True)
     
     st.markdown("<br>", unsafe_allow_html=True)
-    st.caption("v3.0.1 | 5Gnu Low Altitude Economy Center")
+    st.link_button("🌐 Go to Website", "http://ltexpo2023.5gnumultimedia.com", use_container_width=True)
 
 
-# === 4. 主界面逻辑 ===
+# === 4. 主界面逻辑 (回归白色清爽风格) ===
 
-# 标题 (改名)
-st.markdown("<h1 class='main-header'>5Gnu LAE Command Center</h1>", unsafe_allow_html=True)
+# 标题
+st.markdown("<h1 style='color:#1e40af;'>5Gnu LAE Command Center</h1>", unsafe_allow_html=True)
 st.caption("AOPA Authorized | Low Altitude Economy Intelligent System")
 
 col_main, col_info = st.columns([7, 3])
 
-# --- 右侧信息面板 (Cyber Style) ---
+# --- 右侧信息面板 ---
 with col_info:
-    # 面板 1
     st.markdown("""
-    <div class="cyber-panel">
-        <h4 style="color:#0ea5e9; margin-top:0; border-bottom:1px solid #1e293b; padding-bottom:5px;">✈️ DRONE STATUS</h4>
-        <div style="font-family:'Courier New'; font-size:0.9em; line-height:1.6;">
-            <div>ID: <span style="color:#fff;">X-200-PRO</span></div>
-            <div>MODE: <span style="color:#4ade80;">AUTO-PILOT</span></div>
-            <div>BATTERY: <span style="color:#facc15;">87%</span></div>
-        </div>
+    <div class="css-card">
+        <h4 style="color:#0ea5e9; border-bottom:1px solid #eee; padding-bottom:5px;">✈️ DRONE STATUS</h4>
+        <p><strong>ID:</strong> X-200-PRO</p>
+        <p><strong>MODE:</strong> AUTO-PILOT</p>
+        <p><strong>BATTERY:</strong> <span style="color:green">87%</span></p>
     </div>
-    """, unsafe_allow_html=True)
     
-    # 面板 2 (快捷指令)
-    st.markdown("""
-    <div class="cyber-panel">
-        <h4 style="color:#a78bfa; margin-top:0; border-bottom:1px solid #1e293b; padding-bottom:5px;">⌨️ QUICK COMMS</h4>
-        <ul style="padding-left:15px; margin:0; font-size:0.85em; color:#cbd5e1;">
+    <div class="css-card">
+        <h4 style="color:#8b5cf6; border-bottom:1px solid #eee; padding-bottom:5px;">⌨️ QUICK COMMS</h4>
+        <ul>
             <li>Bett 2026 Overview</li>
             <li>Sky & Earth Sync Detail</li>
             <li>AOPA Exam Syllabus</li>
@@ -241,18 +222,18 @@ with col_info:
 
 # --- 左侧主对话区域 ---
 with col_main:
-    # 比赛通告栏 (Neon Orange Theme)
+    # 比赛通告栏 (淡橙色背景，黑字，清晰易读)
     st.markdown("""
     <div class="event-banner">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h3 style="color:#f97316; margin:0; font-size:1.2rem;">🏆 ALERT: Bett 2026 & Sky/Earth Soccer</h3>
-            <span style="background:#f97316; color:black; padding:2px 8px; border-radius:4px; font-weight:bold; font-size:0.7rem;">PRIORITY</span>
+            <h3 style="color:#c2410c; margin:0; font-size:1.2rem;">🏆 ALERT: Bett 2026 & Sky/Earth Soccer</h3>
+            <span style="background:#ffedd5; color:#c2410c; padding:2px 8px; border-radius:4px; font-weight:bold; border:1px solid #c2410c;">FEATURED</span>
         </div>
-        <p style="color:#fdba74; margin-top:10px; margin-bottom:5px;">
+        <p style="color:#431407; margin-top:10px;">
             <strong>Mission Objective:</strong> Demonstrate 5G Remote Control capabilities.
         </p>
-        <div style="font-size:0.9em; color:#e2e8f0;">
-            <span style="color:#f97316;">★ WOW FACTOR:</span> UK Star controlling HK Robots remotely via 5G.
+        <div style="font-size:0.9em; color:#7c2d12;">
+            ★ <strong>WOW FACTOR:</strong> UK Star controlling HK Robots remotely via 5G.
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -260,23 +241,17 @@ with col_main:
     # 聊天记录
     if "messages" not in st.session_state:
         st.session_state.messages = [
-            {"role": "assistant", "content": "Command Center Online. Ready for mission instructions."}
+            {"role": "assistant", "content": "您好！指挥中心在线。请指示飞行任务或询问 Bett 2026 赛事详情。"}
         ]
 
     chat_container = st.container()
     
     # 输入框
-    prompt = st.chat_input("Enter command code or query...")
+    prompt = st.chat_input("在此输入指令...")
 
     with chat_container:
         for msg in st.session_state.messages:
-            # 区分用户和AI的样式
-            if msg["role"] == "user":
-                with st.chat_message("user"):
-                    st.write(msg["content"])
-            else:
-                with st.chat_message("assistant"):
-                    st.write(msg["content"])
+            st.chat_message(msg["role"]).write(msg["content"])
 
     if prompt:
         st.session_state.messages.append({"role": "user", "content": prompt})
@@ -289,7 +264,7 @@ with col_main:
         with chat_container:
             with st.chat_message("assistant"):
                 placeholder = st.empty()
-                placeholder.markdown("`TRANSMITTING DATA...`")
+                placeholder.markdown("`Connecting to 5G Node...`")
                 
                 try:
                     response = requests.post(API_URL, json={"question": prompt})
