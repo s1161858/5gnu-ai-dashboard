@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 from PIL import Image
 import os
-import base64  # 新增：用于处理图片嵌入
+import base64
 
 # === 1. 页面基础配置 ===
 st.set_page_config(
@@ -21,7 +21,7 @@ def get_base64_image(image_path):
     except Exception:
         return None
 
-# === 2. 全局 CSS (保持之前的完美布局) ===
+# === 2. 全局 CSS (样式定义) ===
 st.markdown("""
 <style>
     /* --- 1. 强制显示侧边栏开关按钮 --- */
@@ -67,7 +67,6 @@ st.markdown("""
         border: 2px solid #3b82f6; /* 蓝边框 */
         box-shadow: 0 4px 10px rgba(0,0,0,0.5); /* 阴影 */
     }
-    /* 确保图片在盒子里自适应 */
     .sidebar-logo-box img {
         max-width: 100%;
         height: auto;
@@ -94,7 +93,7 @@ st.markdown("""
         color: #94a3b8;
     }
 
-    /* --- 5. 右侧Danger Zone样式 --- */
+    /* --- 5. 右侧功能区样式 --- */
     .danger-zone-card {
         background-color: #fef2f2;
         border: 1px solid #fee2e2;
@@ -102,6 +101,7 @@ st.markdown("""
         padding: 15px;
         margin-top: 20px;
     }
+    /* 红色重置按钮 */
     .reset-btn-right button {
         background-color: #dc2626 !important;
         color: white !important;
@@ -111,6 +111,25 @@ st.markdown("""
     }
     .reset-btn-right button:hover {
         background-color: #b91c1c !important;
+    }
+    
+    /* 蓝色官网按钮容器 */
+    .web-btn-container {
+        margin-top: 10px;
+    }
+    /* 针对 st.link_button 的样式覆盖 */
+    .web-btn-container a {
+        background-color: #eff6ff !important;
+        color: #1d4ed8 !important;
+        border: 1px solid #bfdbfe !important;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        font-weight: bold !important;
+    }
+    .web-btn-container a:hover {
+        background-color: #dbeafe !important;
+        border-color: #3b82f6 !important;
     }
 
     /* --- 6. 通告栏 --- */
@@ -135,14 +154,12 @@ with st.sidebar:
     img_b64 = get_base64_image(logo_path)
     
     if img_b64:
-        # 有图片：显示在白盒子里
         st.markdown(f"""
         <div class="sidebar-logo-box">
             <img src="data:image/png;base64,{img_b64}" alt="5Gnu Logo">
         </div>
         """, unsafe_allow_html=True)
     else:
-        # 无图片：显示文字 Logo
         st.markdown("""
         <div class="sidebar-logo-box">
             <h2 style='color:#0f172a !important; margin:0;'>5Gnu</h2>
@@ -180,7 +197,7 @@ with st.sidebar:
         </div>
         """, unsafe_allow_html=True)
     
-    st.markdown("<div style='margin-top:20px; font-size:0.8em; color:#64748b;'>System v3.1.2</div>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-top:20px; font-size:0.8em; color:#64748b;'>System v3.2.0</div>", unsafe_allow_html=True)
 
 
 # === 4. 主界面逻辑 ===
@@ -188,7 +205,6 @@ with st.sidebar:
 # [主界面顶部 Logo]
 col_top_logo, _ = st.columns([1, 10])
 with col_top_logo:
-    # 这里直接用 st.image 没问题，因为背景是白的
     if os.path.exists("Logo抠图版.png"):
         st.image("Logo抠图版.png", width=100)
     else:
@@ -224,14 +240,22 @@ with col_info:
     </div>
     """, unsafe_allow_html=True)
 
-    # 3. Danger Zone (保持在右下角)
+    # 3. Danger Zone + 官网入口
     st.markdown('<div class="danger-zone-card">', unsafe_allow_html=True)
     st.markdown("<h5 style='color:#991b1b; margin-top:0;'>⚠️ System Actions</h5>", unsafe_allow_html=True)
+    
+    # 重置按钮
     st.markdown('<div class="reset-btn-right">', unsafe_allow_html=True)
     if st.button("☢️ RESET SYSTEM / 清空记录"):
         st.session_state.clear()
         st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
+    
+    # [新增] 官网按钮
+    st.markdown('<div class="web-btn-container">', unsafe_allow_html=True)
+    st.link_button("🌐 Visit Web Portal / 进入官网", "http://ltexpo2023.5gnumultimedia.com", use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+    
     st.markdown('</div>', unsafe_allow_html=True)
 
 
