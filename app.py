@@ -11,30 +11,77 @@ st.set_page_config(
     initial_sidebar_state="expanded" # 确保侧边栏默认展开
 )
 
-# === 2. 全局 CSS (侧边栏深色 + 主界面白色清晰版) ===
+# === 2. 全局 CSS (强制找回按钮版) ===
 st.markdown("""
 <style>
-    /* --- 1. 主区域恢复白色背景，保证清晰度 --- */
-    .stApp {
-        background-color: #f8fafc; /* 极淡的灰白色，清晰护眼 */
-        color: #1e293b; /* 深色文字，对比度高 */
+    /* --- 1. 核心修复：把侧边栏按钮找回来！ --- */
+    
+    /* 强制显示顶部 Header 区域 (按钮住在这里) */
+    header[data-testid="stHeader"] {
+        background: transparent !important;
+        visibility: visible !important;
+        z-index: 99999 !important; /* 层级最高，防止被挡住 */
     }
 
-    /* --- 2. 修复：恢复侧边栏开关按钮 (左上角箭头) --- */
+    /* 专门针对那个折叠按钮 ( > ) */
     button[kind="header"] {
-        display: block !important; /* 强制显示 */
-        color: #0f172a !important; /* 按钮颜色设为深色以便在白底可见 */
-    }
-    div[data-testid="collapsedControl"] {
+        visibility: visible !important;
         display: block !important;
-        color: #0f172a !important;
+        color: #0f172a !important; /* 强制设为深蓝色，防止在白底上看成白色 */
+        opacity: 1 !important;
     }
     
-    /* 仅隐藏那个错误的 keyboard_double 图标文字，保留箭头图形 */
+    /* 针对某些版本的 collapsedControl 选择器 */
+    [data-testid="collapsedControl"] {
+        display: block !important;
+        visibility: visible !important;
+        color: #0f172a !important;
+    }
+
+    /* 仅隐藏那个错误的 keyboard_double 图标文字，绝不隐藏箭头 */
     span:contains("keyboard_double_arrow_right") { 
         display: none !important; 
-        opacity: 0; 
     }
+
+    /* --- 2. 主区域恢复白色背景 --- */
+    .stApp {
+        background-color: #f8fafc;
+        color: #1e293b;
+    }
+
+    /* --- 3. 侧边栏保持深色 --- */
+    section[data-testid="stSidebar"] {
+        background-color: #0f172a;
+    }
+    /* 侧边栏文字变白 */
+    section[data-testid="stSidebar"] * {
+        color: #cbd5e1 !important;
+    }
+
+    /* --- 4. Logo 区域 --- */
+    .logo-box {
+        background-color: #ffffff;
+        border-radius: 10px;
+        padding: 12px;
+        text-align: center;
+        margin-bottom: 20px;
+        border: 2px solid #3b82f6;
+    }
+
+    /* --- 5. 重置按钮 --- */
+    .reset-box button {
+        background-color: #dc2626 !important;
+        color: white !important;
+        border: 1px solid #ef4444 !important;
+    }
+
+    /* --- 6. 隐藏不必要的 Footer，但不隐藏 Header --- */
+    footer {visibility: hidden;}
+    /* header {visibility: hidden;} <--- 这一行一定要删掉！之前可能就是它把按钮藏起来了 */
+    
+</style>
+""", unsafe_allow_html=True)
+
 
     /* --- 3. 侧边栏保持深色科技感 --- */
     section[data-testid="stSidebar"] {
@@ -276,4 +323,5 @@ with col_main:
                         placeholder.error(f"Error {response.status_code}")
                 except Exception as e:
                     placeholder.error(f"Link Down: {e}")
+
 
