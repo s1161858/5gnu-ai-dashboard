@@ -3,6 +3,11 @@ import requests
 from PIL import Image
 import os
 import base64
+import urllib3
+
+# 禁用 SSL 警告
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 
 # === 1. 页面基础配置 ===
 st.set_page_config(
@@ -12,6 +17,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+
 # === 辅助函数：将图片转换为 HTML 可用的 Base64 格式 ===
 def get_base64_image(image_path):
     try:
@@ -20,6 +26,7 @@ def get_base64_image(image_path):
         return base64.b64encode(data).decode()
     except Exception:
         return None
+
 
 # === 2. 全局 CSS (样式定义) ===
 st.markdown("""
@@ -44,6 +51,7 @@ st.markdown("""
         display: none !important; 
     }
 
+
     /* --- 2. 布局颜色 --- */
     .stApp {
         background-color: #f8fafc; /* 主区域白 */
@@ -56,6 +64,7 @@ st.markdown("""
     section[data-testid="stSidebar"] * {
         color: #cbd5e1 !important; /* 侧边栏文字白 */
     }
+
 
     /* --- 3. 侧边栏 Logo 容器 (纯白底色) --- */
     .sidebar-logo-box {
@@ -73,6 +82,7 @@ st.markdown("""
         display: block;
         margin: 0 auto;
     }
+
 
     /* --- 4. 仪表盘数据 (侧边栏) --- */
     .metric-container {
@@ -92,6 +102,7 @@ st.markdown("""
         font-size: 0.75em;
         color: #94a3b8;
     }
+
 
     /* --- 5. 右侧功能区样式 --- */
     .danger-zone-card {
@@ -132,6 +143,7 @@ st.markdown("""
         border-color: #3b82f6 !important;
     }
 
+
     /* --- 6. 通告栏 --- */
     .event-banner {
         background-color: #fff7ed;
@@ -145,6 +157,7 @@ st.markdown("""
     footer {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
+
 
 
 # === 3. 侧边栏逻辑 ===
@@ -166,6 +179,7 @@ with st.sidebar:
         </div>
         """, unsafe_allow_html=True)
 
+
     # [模式选择]
     st.markdown("### 💠 SYSTEM PROTOCOL")
     mode = st.radio(
@@ -178,6 +192,7 @@ with st.sidebar:
         st.info("⚡ ACTIVE: Sky & Earth Tournament Setup")
     
     st.markdown("---")
+
 
     # [实时遥测]
     st.markdown("### 📡 LIVE TELEMETRY")
@@ -200,7 +215,9 @@ with st.sidebar:
     st.markdown("<div style='margin-top:20px; font-size:0.8em; color:#64748b;'>System v3.2.0</div>", unsafe_allow_html=True)
 
 
+
 # === 4. 主界面逻辑 ===
+
 
 # [主界面顶部 Logo]
 col_top_logo, _ = st.columns([1, 10])
@@ -210,11 +227,14 @@ with col_top_logo:
     else:
         st.markdown("🚁")
 
+
 # 标题
 st.markdown("<h1 style='color:#1e40af; margin-top:-10px;'>5Gnu LAE Command Center</h1>", unsafe_allow_html=True)
 st.caption("AOPA Authorized | Low Altitude Economy Intelligent System")
 
+
 col_main, col_info = st.columns([7, 3])
+
 
 # --- 右侧信息面板 ---
 with col_info:
@@ -240,6 +260,7 @@ with col_info:
     </div>
     """, unsafe_allow_html=True)
 
+
     # 3. Danger Zone + 官网入口
     st.markdown('<div class="danger-zone-card">', unsafe_allow_html=True)
     st.markdown("<h5 style='color:#991b1b; margin-top:0;'>⚠️ System Actions</h5>", unsafe_allow_html=True)
@@ -257,6 +278,7 @@ with col_info:
     st.markdown('</div>', unsafe_allow_html=True)
     
     st.markdown('</div>', unsafe_allow_html=True)
+
 
 
 # --- 左侧主对话区域 ---
@@ -277,25 +299,30 @@ with col_main:
     </div>
     """, unsafe_allow_html=True)
 
+
     # 聊天记录
     if "messages" not in st.session_state:
         st.session_state.messages = [
             {"role": "assistant", "content": "您好！指挥中心在线。请指示飞行任务或询问 Bett 2026 赛事详情。"}
         ]
 
+
     chat_container = st.container()
     
     # 输入框
     prompt = st.chat_input("在此输入指令...")
 
+
     with chat_container:
         for msg in st.session_state.messages:
             st.chat_message(msg["role"]).write(msg["content"])
+
 
     if prompt:
         st.session_state.messages.append({"role": "user", "content": prompt})
         with chat_container:
             st.chat_message("user").write(prompt)
+
 
         # API 调用
         API_URL = "https://cloud.flowiseai.com/api/v1/prediction/46e17ecb-9ace-46ce-91ed-f7332554b78c"
@@ -306,13 +333,28 @@ with col_main:
                 placeholder.markdown("`Connecting to 5G Node...`")
                 
                 try:
-                    response = requests.post(API_URL, json={"question": prompt})
+                    response = requests.post(
+                        API_URL, 
+                        json={"question": prompt},
+                        verify=False,  # 禁用 SSL 验证
+                        timeout=30  # 设置超时
+                    )
+                    
                     if response.status_code == 200:
-                        text = response.json().get("text", "")
+                        text = response.json().get("text", "无回应")
                         placeholder.write(text)
                         st.session_state.messages.append({"role": "assistant", "content": text})
                     else:
-                        placeholder.error(f"Error {response.status_code}")
+                        error_msg = f"❌ API Error {response.status_code}"
+                        placeholder.error(error_msg)
+                        st.session_state.messages.append({"role": "assistant", "content": error_msg})
+                        
+                except requests.exceptions.Timeout:
+                    error_msg = "⏱️ 连接超时,请稍后重试"
+                    placeholder.error(error_msg)
+                    st.session_state.messages.append({"role": "assistant", "content": error_msg})
                 except Exception as e:
-                    placeholder.error(f"Link Down: {e}")
+                    error_msg = f"🔌 连接失败: {str(e)[:100]}"
+                    placeholder.error(error_msg)
+                    st.session_st
 
